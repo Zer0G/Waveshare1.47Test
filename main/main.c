@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdbool.h>
 
 #include "esp_err.h"
@@ -21,9 +20,10 @@
 #include "button_gpio.h"
 
 #include "demos/lv_demos.h"
+#include "lib_espnow.h"
 
 
-#include "lvgl_ui.h"
+#include "ui.h"
 
 #define EXAMPLE_DISPLAY_ROTATION 0
 
@@ -69,7 +69,7 @@ void app_main(void)
 
     i2c_bus_handle = bsp_i2c_init();
     bsp_battery_init();
-    bsp_wifi_init("WSTEST", "waveshare0755");
+    //bsp_wifi_init("WSTEST", "waveshare0755");
     bsp_display_init(&io_handle, &panel_handle, EXAMPLE_LCD_H_RES * EXAMPLE_LCD_DRAW_BUFF_HEIGHT);
     bsp_touch_init(&touch_handle, i2c_bus_handle, EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES, EXAMPLE_DISPLAY_ROTATION);
     // bsp_sdcard_init();
@@ -84,13 +84,19 @@ void app_main(void)
     // touch_test();
 
 
-    if (lvgl_port_lock(0))
+    ui_init();
+
+    
+    libEspNow_wifi_init();
+    libEspNow_init();
+
+    //touch_test();
+
+    while (1)
     {
-        // lv_demo_benchmark();
-        // lv_demo_music();
-        lv_demo_widgets();
-        lvgl_port_unlock();
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
+
 }
 
 static esp_err_t app_lvgl_init(void)
@@ -98,7 +104,7 @@ static esp_err_t app_lvgl_init(void)
     /* Initialize LVGL */
     const lvgl_port_cfg_t lvgl_cfg = {
         .task_priority = 4,       /* LVGL task priority */
-        .task_stack = 1024 * 10,  /* LVGL task stack size */
+        .task_stack = 1024 * 15,  /* LVGL task stack size */
         .task_affinity = -1,      /* LVGL task pinned to core (-1 is no affinity) */
         .task_max_sleep_ms = 500, /* Maximum sleep in LVGL task */
         .timer_period_ms = 5      /* LVGL timer tick period in ms */

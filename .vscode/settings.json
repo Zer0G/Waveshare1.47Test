@@ -1,5 +1,5 @@
 {
-  "C_Cpp.intelliSenseEngine": "default",
+  "C_Cpp.intelliSenseEngine": "Tag Parser",
   "idf.espIdfPathWin": "d:\\esp-idf\\frameworks\\esp-idf-v5.5\\",
   "idf.pythonInstallPath": "d:\\esp-idf\\tools\\idf-python\\3.11.2\\python.exe",
   "idf.openOcdConfigs": [
@@ -28,6 +28,8 @@
     "task.h": "c",
     "lcd_types.h": "c",
     "color_types.h": "c",
-    "esp_lcd_panel_interface.h": "c"
+    "esp_lcd_panel_interface.h": "c",
+    "esp_random.h": "c",
+    "stdio.h": "c"
   }
 }
