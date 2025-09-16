@@ -1,6 +1,6 @@
 {
   "C_Cpp.intelliSenseEngine": "Tag Parser",
-  "idf.espIdfPathWin": "d:\\esp-idf\\frameworks\\esp-idf-v5.5\\",
+  "idf.espIdfPathWin": "d:/esp-idf/frameworks/esp-idf-v5.5/",
   "idf.pythonInstallPath": "d:\\esp-idf\\tools\\idf-python\\3.11.2\\python.exe",
   "idf.openOcdConfigs": [
     "board/esp32s3-builtin.cfg"
@@ -31,5 +31,6 @@
     "esp_lcd_panel_interface.h": "c",
     "esp_random.h": "c",
     "stdio.h": "c"
-  }
+  },
+  "idf.monitorPort": "COM9"
 }

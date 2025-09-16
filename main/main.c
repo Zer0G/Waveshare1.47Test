@@ -94,7 +94,9 @@ void app_main(void)
 
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(100));
+        //libEpsNow_send_data(s_libEspNow_server_mac, (uint8_t *)"Hello from client", 18);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
     }
 
 }

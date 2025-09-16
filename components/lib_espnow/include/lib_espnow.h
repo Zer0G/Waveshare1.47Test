@@ -59,11 +59,12 @@ typedef struct {
     libEspNow_event_info_t info;
 } libEspNow_event_t;
 
-enum {
+typedef enum {
     LIB_ESPNOW_DATA_BROADCAST,
     LIB_ESPNOW_DATA_UNICAST,
     LIB_ESPNOW_DATA_MAX,
-};
+    LIB_ESPNOW_DATA_ERROR,
+}libEspNow_messagetype_t;
 
 /* User defined field of ESPNOW data in this example. */
 typedef struct {
@@ -89,9 +90,15 @@ typedef struct {
 } libEspNow_send_param_t;
 
 
+extern uint8_t s_libEspNow_server_mac[ESP_NOW_ETH_ALEN]; 
+
+
 
 void libEspNow_wifi_init(void);
 esp_err_t libEspNow_init(void);
+void libEpsNow_send_data(uint8_t *dest_mac, uint8_t *data, uint16_t len);
+void libEspNow_receive_cplt(libEspNow_messagetype_t type,uint8_t *src_mac, uint8_t *data, int data_len);
+void libEspNow_send_cplt(uint8_t *dest_mac);
 
 
 #endif

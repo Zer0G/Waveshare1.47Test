@@ -75,12 +75,15 @@ void scr_unloaded_delete_cb(lv_event_t * e);
 void _ui_opacity_set(lv_obj_t * target, int val);
 
 /** Describes an animation*/
-typedef struct _ui_anim_user_data_t {
+typedef struct _ui_anim_user_data_t
+ {
     lv_obj_t * target;
     lv_img_dsc_t ** imgset;
     int32_t imgset_size;
     int32_t val;
 } ui_anim_user_data_t;
+
+
 void _ui_anim_callback_free_user_data(lv_anim_t * a);
 
 void _ui_anim_callback_set_x(lv_anim_t * a, int32_t v);
