@@ -20,10 +20,16 @@
 #include "button_gpio.h"
 
 #include "demos/lv_demos.h"
-#include "lib_espnow.h"
+#include "libEspnow.h"
+#include "esp_log.h"
+#include <string.h>
 
 
 #include "ui.h"
+
+#define ESPNOW_CHANNEL 1
+static uint8_t server_mac[ESP_NOW_ETH_ALEN];
+static bool server_found = false;
 
 #define EXAMPLE_DISPLAY_ROTATION 0
 
@@ -38,7 +44,7 @@
 #define EXAMPLE_LCD_DRAW_BUFF_HEIGHT (50)
 #define EXAMPLE_LCD_DRAW_BUFF_DOUBLE (1)
 
-static char *TAG = "lvgl_example";
+static char *TAG = "cdcLoggerClient";
 
 /* LCD IO and panel */
 static esp_lcd_panel_io_handle_t io_handle = NULL;
@@ -54,6 +60,45 @@ void lv_fs_fatfs_init(void);
 static esp_err_t app_lvgl_init(void);
 static void button_init(void);
 static void touch_test(void);
+
+
+static void client_rx_cb(const libespnow_msg_t *msg) {
+    if (!server_found && msg->is_broadcast && msg->data) {
+        if (strcmp((char*)msg->data, "SERVER_DISCOVERY") == 0) {
+            memcpy(server_mac, msg->src_mac, ESP_NOW_ETH_ALEN);
+            server_found = true;
+            ESP_LOGI(TAG, "Server trovato: %02X:%02X:%02X:%02X:%02X:%02X",
+                     server_mac[0], server_mac[1], server_mac[2],
+                     server_mac[3], server_mac[4], server_mac[5]);
+        }
+    }
+    libespnow_msg_free((libespnow_msg_t*)msg);
+}
+
+static void send_task(void *arg) {
+    int counter = 0;
+    while (1) {
+        if (server_found) {
+            char buf[32];
+            snprintf(buf, sizeof(buf), "HELLO %d", counter++);
+            libespnow_send(server_mac, buf, strlen(buf)+1, false);
+            ESP_LOGI(TAG, "Unicast inviato al server");
+        }
+        vTaskDelay(pdMS_TO_TICKS(2000));
+    }
+}
+
+static void status_task(void *arg) {
+    while (1) {
+        libespnow_status_t st;
+        libespnow_get_status(&st);
+        ESP_LOGI(TAG, "STATE=%d RSSI=%d MAC=%02X:%02X:%02X:%02X:%02X:%02X",
+                 st.state, st.last_rssi,
+                 st.mac[0], st.mac[1], st.mac[2],
+                 st.mac[3], st.mac[4], st.mac[5]);
+        vTaskDelay(pdMS_TO_TICKS(2000));
+    }
+}
 
 void app_main(void)
 {
@@ -87,8 +132,13 @@ void app_main(void)
     ui_init();
 
     
-    libEspNow_wifi_init();
-    libEspNow_init();
+    ESP_LOGI(TAG, "Avvio CLIENT ESP-NOW");
+    if (libespnow_init(client_rx_cb,ESPNOW_CHANNEL) != ESP_OK) {
+        ESP_LOGE(TAG, "Errore init libEspnow");
+        return;
+    }
+    xTaskCreate(send_task, "sender", 4096, NULL, 4, NULL);
+    xTaskCreate(status_task, "status", 4096, NULL, 4, NULL);
 
     //touch_test();
 
